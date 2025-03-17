@@ -1,15 +1,15 @@
-import { Transaction } from 'sequelize';
-import { TaskRepository } from '@/repositories/task.repository';
-import { ITask, ITaskFilter } from '@/interfaces/task.interface';
-import { logger } from '@/config/logger';
-import { sequelize } from '@/config/database';
-import { BadRequestException } from '@/exceptions/http-exception';
+import { Transaction } from "sequelize"
+import { TaskRepository } from "@/repositories/task.repository"
+import { ITask, ITaskFilter } from "@/interfaces/task.interface"
+import { logger } from "@/config/logger"
+import { sequelize } from "@/config/database"
+import { BadRequestException } from "@/exceptions/http-exception"
 
 export class TaskService {
-  private taskRepository: TaskRepository;
+  private taskRepository: TaskRepository
 
   constructor() {
-    this.taskRepository = new TaskRepository();
+    this.taskRepository = new TaskRepository()
   }
 
   /**
@@ -18,23 +18,23 @@ export class TaskService {
    * @returns Created task
    */
   public async createTask(taskData: ITask): Promise<ITask> {
-    logger.info('Creating new task', { title: taskData.title });
+    logger.info("Creating new task", { title: taskData.title })
 
     // Use transaction to ensure data consistency
-    const transaction: Transaction = await sequelize.transaction();
+    const transaction: Transaction = await sequelize.transaction()
 
     try {
-      const task = await this.taskRepository.createTask(taskData, transaction);
-      await transaction.commit();
-      return task;
+      const task = await this.taskRepository.createTask(taskData, transaction)
+      await transaction.commit()
+      return task
     } catch (error) {
-      await transaction.rollback();
-      logger.error('Failed to create task', { error });
+      await transaction.rollback()
+      logger.error("Failed to create task", { error })
 
       if (error instanceof Error) {
-        throw new BadRequestException(error.message);
+        throw new BadRequestException(error.message)
       }
-      throw error;
+      throw error
     }
   }
 
@@ -43,18 +43,20 @@ export class TaskService {
    * @param filters - Filter criteria
    * @returns Array of tasks and total count
    */
-  public async getTasks(filters?: ITaskFilter): Promise<{ tasks: ITask[]; total: number }> {
-    logger.info('Getting tasks with filters', { filters });
+  public async getTasks(
+    filters?: ITaskFilter,
+  ): Promise<{ tasks: ITask[]; total: number }> {
+    logger.info("Getting tasks with filters", { filters })
 
     try {
-      return await this.taskRepository.getTasks(filters);
+      return await this.taskRepository.getTasks(filters)
     } catch (error) {
-      logger.error('Failed to get tasks', { error });
+      logger.error("Failed to get tasks", { error })
 
       if (error instanceof Error) {
-        throw new BadRequestException(error.message);
+        throw new BadRequestException(error.message)
       }
-      throw error;
+      throw error
     }
   }
 
@@ -64,13 +66,13 @@ export class TaskService {
    * @returns Task details
    */
   public async getTaskById(taskId: number): Promise<ITask> {
-    logger.info('Getting task by ID', { taskId });
+    logger.info("Getting task by ID", { taskId })
 
     try {
-      return await this.taskRepository.getTaskById(taskId);
+      return await this.taskRepository.getTaskById(taskId)
     } catch (error) {
-      logger.error('Failed to get task by ID', { taskId, error });
-      throw error;
+      logger.error("Failed to get task by ID", { taskId, error })
+      throw error
     }
   }
 
@@ -80,20 +82,27 @@ export class TaskService {
    * @param taskData - Updated task data
    * @returns Updated task
    */
-  public async updateTask(taskId: number, taskData: Partial<ITask>): Promise<ITask> {
-    logger.info('Updating task', { taskId, data: taskData });
+  public async updateTask(
+    taskId: number,
+    taskData: Partial<ITask>,
+  ): Promise<ITask> {
+    logger.info("Updating task", { taskId, data: taskData })
 
     // Use transaction to ensure data consistency
-    const transaction: Transaction = await sequelize.transaction();
+    const transaction: Transaction = await sequelize.transaction()
 
     try {
-      const task = await this.taskRepository.updateTask(taskId, taskData, transaction);
-      await transaction.commit();
-      return task;
+      const task = await this.taskRepository.updateTask(
+        taskId,
+        taskData,
+        transaction,
+      )
+      await transaction.commit()
+      return task
     } catch (error) {
-      await transaction.rollback();
-      logger.error('Failed to update task', { taskId, error });
-      throw error;
+      await transaction.rollback()
+      logger.error("Failed to update task", { taskId, error })
+      throw error
     }
   }
 
@@ -103,21 +112,21 @@ export class TaskService {
    * @returns True if deleted
    */
   public async deleteTask(taskId: number): Promise<boolean> {
-    logger.info('Deleting task', { taskId });
+    logger.info("Deleting task", { taskId })
 
     // Use transaction to ensure data consistency
-    const transaction: Transaction = await sequelize.transaction();
+    const transaction: Transaction = await sequelize.transaction()
 
     try {
-      const result = await this.taskRepository.deleteTask(taskId, transaction);
-      await transaction.commit();
-      return result;
+      const result = await this.taskRepository.deleteTask(taskId, transaction)
+      await transaction.commit()
+      return result
     } catch (error) {
-      await transaction.rollback();
-      logger.error('Failed to delete task', { taskId, error });
-      throw error;
+      await transaction.rollback()
+      logger.error("Failed to delete task", { taskId, error })
+      throw error
     }
   }
 }
 
-export default new TaskService();
+export default new TaskService()

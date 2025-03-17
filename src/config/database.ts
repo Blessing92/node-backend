@@ -1,16 +1,20 @@
-import { Sequelize } from "sequelize-typescript";
+import { Sequelize } from "sequelize-typescript"
 import { logger } from "./logger"
 import dotenv from "dotenv"
 
-dotenv.config();
+dotenv.config()
 
 // Validate required environment variables
-const requiredEnvVars = ['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASSWORD'];
-const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+const requiredEnvVars = ["DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD"]
+const missingEnvVars = requiredEnvVars.filter((envVar) => !process.env[envVar])
 
 if (missingEnvVars.length > 0) {
-  logger.error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
-  throw new Error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
+  logger.error(
+    `Missing required environment variables: ${missingEnvVars.join(", ")}`,
+  )
+  throw new Error(
+    `Missing required environment variables: ${missingEnvVars.join(", ")}`,
+  )
 }
 
 const {
@@ -19,7 +23,7 @@ const {
   DB_NAME,
   DB_USER,
   DB_PASSWORD,
-  NODE_ENV = "development"
+  NODE_ENV = "development",
 } = process.env
 
 const sequelize = new Sequelize({
@@ -35,28 +39,28 @@ const sequelize = new Sequelize({
     max: 5,
     min: 0,
     acquire: 30000,
-    idle: 10000
+    idle: 10000,
   },
   define: {
     timestamps: true,
-    underscored: true
-  }
+    underscored: true,
+  },
 })
 
 export const initializeDatabase = async (): Promise<void> => {
   try {
-    await sequelize.authenticate();
+    await sequelize.authenticate()
     logger.info("Database connection has been established successfully.")
 
     // Sync all models with database
     if (NODE_ENV === "development") {
-      await sequelize.sync({ alter: true});
-      logger.info("All models were synchronized successfully.");
+      await sequelize.sync({ alter: true })
+      logger.info("All models were synchronized successfully.")
     }
   } catch (error) {
     logger.error("Unable to connect to the database: ", error)
-    throw error;
+    throw error
   }
 }
 
-export { sequelize };
+export { sequelize }
