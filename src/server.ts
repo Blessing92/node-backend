@@ -20,7 +20,7 @@ app.listen().catch((error) => {
 })
 
 // Graceful shutdown
-const gracefulShutdown = () => {
+const gracefulShutdown = (): void => {
   logger.info("Received kill signal, shutting down gracefully")
   setTimeout(() => {
     logger.info("Shutting down now")

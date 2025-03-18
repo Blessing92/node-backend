@@ -1,4 +1,4 @@
-import { TaskStatus } from "@/enums/task-status.enum"
+import { type TaskStatus } from "@/enums/task-status.enum"
 
 export interface ITask {
   task_id?: number

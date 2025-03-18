@@ -1,22 +1,11 @@
-import { Request, Response, NextFunction } from "express"
-import { v4 as uuidv4 } from "uuid"
+import { type Request, type Response, type NextFunction } from "express"
 import { logger } from "@/config/logger"
-
-declare global {
-  namespace Express {
-    interface Request {
-      id: string
-    }
-  }
-}
 
 export const requestLogger = (
   req: Request,
   res: Response,
   next: NextFunction,
 ): void => {
-  req.id = uuidv4()
-
   const start = Date.now()
 
   res.on("finish", () => {
@@ -33,7 +22,6 @@ export const requestLogger = (
       userAgent: req.get("User-Agent"),
       ip: req.ip,
       duration: `${duration}ms`,
-      requestId: req.id,
     })
   })
 

@@ -1,13 +1,13 @@
-import { Request, Response, NextFunction } from "express"
+import { type Request, type Response } from "express"
 import { HttpException } from "@/exceptions/http-exception"
 import { ValidationException } from "@/exceptions/validation.exception"
 import { logger } from "@/config/logger"
+import { ValidationError } from "sequelize"
 
 export const errorMiddleware = (
   error: Error,
   req: Request,
   res: Response,
-  next: NextFunction,
 ): void => {
   if (error instanceof ValidationException) {
     logger.warn({
@@ -15,7 +15,6 @@ export const errorMiddleware = (
       path: req.path,
       method: req.method,
       errors: error.errors,
-      requestId: req.id,
     })
 
     res.status(error.status).json({
@@ -24,7 +23,6 @@ export const errorMiddleware = (
       errors: error.errors,
       timestamp: new Date().toISOString(),
       path: req.path,
-      requestId: req.id,
     })
     return
   }
@@ -34,7 +32,6 @@ export const errorMiddleware = (
       msg: error.message,
       path: req.path,
       method: req.method,
-      requestId: req.id,
     })
 
     res.status(error.status).json({
@@ -42,34 +39,28 @@ export const errorMiddleware = (
       message: error.message,
       timestamp: new Date().toISOString(),
       path: req.path,
-      requestId: req.id,
     })
     return
   }
 
   // Handling Sequelize errors
-  if (
-    error.name === "SequelizeValidationError" ||
-    error.name === "SequelizeUniqueConstraintError"
-  ) {
+  if (error instanceof ValidationError) {
     logger.warn({
       msg: "Database validation error",
       path: req.path,
       method: req.method,
       error: error.message,
-      requestId: req.id,
     })
 
     res.status(400).json({
       status: 400,
       message: "Validation error",
-      errors: (error as any).errors.map((e: any) => ({
-        field: e.path,
+      errors: error.errors.map((e) => ({
+        field: e.path ?? "unknown_field",
         message: e.message,
       })),
       timestamp: new Date().toISOString(),
       path: req.path,
-      requestId: req.id,
     })
     return
   }
@@ -81,7 +72,6 @@ export const errorMiddleware = (
     stack: error.stack,
     path: req.path,
     method: req.method,
-    requestId: req.id,
   })
 
   res.status(500).json({
@@ -89,6 +79,5 @@ export const errorMiddleware = (
     message: "Internal server error",
     timestamp: new Date().toISOString(),
     path: req.path,
-    requestId: req.id,
   })
 }

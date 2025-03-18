@@ -1,11 +1,11 @@
-import { Transaction, Op } from "sequelize"
+import { type Transaction, Op, type WhereOptions } from "sequelize"
 import Task from "@/models/task.model"
 import {
   createTaskSchema,
   updateTaskSchema,
   paginationSchema,
 } from "@/dto/task.dto"
-import { ITask, ITaskFilter } from "@/interfaces/task.interface"
+import { type ITask, type ITaskFilter } from "@/interfaces/task.interface"
 import { logger } from "@/config/logger"
 import { NotFoundException } from "@/exceptions/http-exception"
 // import { cache } from '../utils/cache.util';
@@ -39,17 +39,12 @@ export class TaskRepository {
       )
     }
 
-    const task = await Task.create(
-      {
-        ...value,
-      },
-      { transaction },
-    )
+    const task = await Task.create(value, { transaction })
 
     // Invalidate cache for list endpoints
     // await this.invalidateListCache();
 
-    return task.toJSON() as ITask
+    return await task.toJSON()
   }
 
   /**
@@ -61,7 +56,7 @@ export class TaskRepository {
     filters?: ITaskFilter,
   ): Promise<{ tasks: ITask[]; total: number }> {
     // Validate and apply defaults to query parameters
-    const { error, value } = paginationSchema.validate(filters || {})
+    const { error, value } = paginationSchema.validate(filters ?? {})
     if (error) {
       throw new Error(`Invalid query parameters: ${error.message}`)
     }
@@ -78,7 +73,7 @@ export class TaskRepository {
     const offset = (page - 1) * limit
 
     // Build query conditions based on filters
-    const where: any = {}
+    const where: WhereOptions = {}
 
     if (status) {
       where.status = status
@@ -99,14 +94,14 @@ export class TaskRepository {
     }
 
     if (search) {
-      where[Op.or] = [
+      where[Op.or as keyof WhereOptions] = [
         { title: { [Op.like]: `%${search}%` } },
         { description: { [Op.like]: `%${search}%` } },
       ]
     }
 
     // Generate cache key based on query parameters
-    const cacheKey = `tasks:filtered:${JSON.stringify({ page, limit, sortBy, sortOrder, status, search, due_date_start: filters?.due_date_start, due_date_end: filters?.due_date_end })}`
+    // const cacheKey = `tasks:filtered:${JSON.stringify({ page, limit, sortBy, sortOrder, status, search, due_date_start: filters?.due_date_start, due_date_end: filters?.due_date_end })}`
 
     // Try to get from cache first
     // const cachedResult = await cache.get(cacheKey);
@@ -143,7 +138,7 @@ export class TaskRepository {
     })
 
     const result = {
-      tasks: rows.map((task) => task.toJSON() as ITask),
+      tasks: rows.map((task) => task.toJSON()),
       total: count,
     }
 
@@ -163,7 +158,7 @@ export class TaskRepository {
     logger.debug("Fetching task by ID", { taskId })
 
     // Try to get from cache first
-    const cacheKey = `task:${taskId}`
+    // const cacheKey = `task:${taskId}`
     // const cachedTask = await cache.get(cacheKey);
     //
     // if (cachedTask) {
@@ -177,7 +172,7 @@ export class TaskRepository {
       throw new NotFoundException(`Task with ID ${taskId} not found`)
     }
 
-    const taskData = task.toJSON() as ITask
+    const taskData = task.toJSON()
 
     // Cache the result for 5 minutes
     // await cache.set(cacheKey, JSON.stringify(taskData), 'EX', 300);
@@ -200,7 +195,6 @@ export class TaskRepository {
   ): Promise<ITask> {
     logger.debug("Updating task", { taskId, ...taskData })
 
-    // Validate input data against schema
     const { error, value } = updateTaskSchema.validate(taskData)
     if (error) {
       throw new Error(`Invalid update data: ${error.message}`)
@@ -219,7 +213,7 @@ export class TaskRepository {
     // await cache.del(`task:${taskId}`);
     // await this.invalidateListCache();
 
-    return task.toJSON() as ITask
+    return await task.toJSON()
   }
 
   /**

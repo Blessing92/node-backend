@@ -1,12 +1,12 @@
-import { Transaction } from "sequelize"
+import { type Transaction } from "sequelize"
 import { TaskRepository } from "@/repositories/task.repository"
-import { ITask, ITaskFilter } from "@/interfaces/task.interface"
+import { type ITask, type ITaskFilter } from "@/interfaces/task.interface"
 import { logger } from "@/config/logger"
 import { sequelize } from "@/config/database"
 import { BadRequestException } from "@/exceptions/http-exception"
 
 export class TaskService {
-  private taskRepository: TaskRepository
+  private readonly taskRepository: TaskRepository
 
   constructor() {
     this.taskRepository = new TaskRepository()

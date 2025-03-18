@@ -1,15 +1,15 @@
-import { BadRequestException } from './http-exception';
+import { BadRequestException } from "./http-exception"
 
 export interface ValidationError {
-  field: string;
-  message: string;
+  field: string
+  message: string
 }
 
 export class ValidationException extends BadRequestException {
-  public errors: ValidationError[];
+  public errors: ValidationError[]
 
   constructor(errors: ValidationError[]) {
-    super('Validation failed');
-    this.errors = errors;
+    super("Validation failed")
+    this.errors = errors
   }
 }

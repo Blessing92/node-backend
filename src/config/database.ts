@@ -1,12 +1,15 @@
 import { Sequelize } from "sequelize-typescript"
 import { logger } from "./logger"
 import dotenv from "dotenv"
+import path from "path"
 
 dotenv.config()
 
 // Validate required environment variables
 const requiredEnvVars = ["DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD"]
-const missingEnvVars = requiredEnvVars.filter((envVar) => !process.env[envVar])
+const missingEnvVars = requiredEnvVars.filter(
+  (envVar) => (process.env[envVar] ?? "").trim() === "",
+)
 
 if (missingEnvVars.length > 0) {
   logger.error(
@@ -33,8 +36,13 @@ const sequelize = new Sequelize({
   database: DB_NAME,
   username: DB_USER,
   password: DB_PASSWORD,
-  logging: NODE_ENV === "development" ? (msg) => logger.debug(msg) : false,
-  models: [__dirname + "/../models"],
+  logging:
+    NODE_ENV === "development"
+      ? (msg) => {
+          logger.debug(msg)
+        }
+      : false,
+  models: [path.join(__dirname, "..", "models")],
   pool: {
     max: 5,
     min: 0,

@@ -1,11 +1,11 @@
-import { Request, Response, NextFunction } from "express"
+import { type Request, type Response, type NextFunction } from "express"
 import { TaskService } from "@/services/task.service"
-import { ITaskFilter } from "@/interfaces/task.interface"
+import { type ITask, type ITaskFilter } from "@/interfaces/task.interface"
 import { BadRequestException } from "@/exceptions/http-exception"
-import { TaskStatus } from "@/enums/task-status.enum"
+import { type TaskStatus } from "@/enums/task-status.enum"
 
 export class TaskController {
-  private taskService: TaskService
+  private readonly taskService: TaskService
 
   constructor() {
     this.taskService = new TaskService()
@@ -21,7 +21,7 @@ export class TaskController {
     next: NextFunction,
   ): Promise<void> => {
     try {
-      const taskData = req.body
+      const taskData = req.body as ITask
       const task = await this.taskService.createTask(taskData)
 
       res.status(201).json({
@@ -69,9 +69,9 @@ export class TaskController {
         data: tasks,
         meta: {
           total,
-          page: filters.page || 1,
-          limit: filters.limit || 10,
-          pages: Math.ceil(total / (filters.limit || 10)),
+          page: filters.page ?? 1,
+          limit: filters.limit ?? 10,
+          pages: Math.ceil(total / (filters.limit ?? 10)),
         },
       })
     } catch (error) {
@@ -122,7 +122,7 @@ export class TaskController {
         throw new BadRequestException("Invalid task ID")
       }
 
-      const taskData = req.body
+      const taskData = req.body as Partial<ITask>
       const updatedTask = await this.taskService.updateTask(taskId, taskData)
 
       res.status(200).json({

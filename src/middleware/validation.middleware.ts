@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from "express"
-import { Schema } from "joi"
+import { type Request, type Response, type NextFunction } from "express"
+import { type Schema } from "joi"
 import { BadRequestException } from "@/exceptions/http-exception"
 
 /**
@@ -17,11 +17,12 @@ export const validateRequest = (
       stripUnknown: true,
     })
 
-    if (error) {
+    if (error !== undefined && error !== null) {
       const errorMessages = error.details
         .map((detail) => detail.message)
         .join(", ")
-      return next(new BadRequestException(errorMessages))
+      next(new BadRequestException(errorMessages))
+      return
     }
 
     // Replace the request data with the validated data
