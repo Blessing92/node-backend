@@ -27,9 +27,6 @@
   ],
   "author": "Perseverance Ngoy",
   "license": "ISC",
-  "_moduleAliases": {
-    "@": "dist"
-  },
   "dependencies": {
     "@types/aws-lambda": "^8.10.147",
     "aws-sdk": "^2.1692.0",
@@ -41,7 +38,6 @@
     "express-validator": "^7.0.1",
     "helmet": "^6.0.1",
     "joi": "^17.9.1",
-    "module-alias": "^2.2.3",
     "mysql2": "^3.2.0",
     "pino": "^8.11.0",
     "pino-http": "^8.3.3",

@@ -1,11 +1,11 @@
 import { Router } from "express"
-import TaskController from "@/controllers/task.controller"
-import { validateRequest } from "@/middleware/validation.middleware"
+import TaskController from "../controllers/task.controller"
+import { validateRequest } from "../middleware/validation.middleware"
 import {
   createTaskSchema,
   updateTaskSchema,
   getTasksQuerySchema,
-} from "@/dto/task.dto"
+} from "../dto/task.dto"
 
 const router = Router()
 

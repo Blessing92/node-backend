@@ -7,8 +7,8 @@ import taskRoutes from "./routes/task.routes"
 import { errorMiddleware } from "./middleware/error.middleware"
 import { requestLogger } from "./middleware/logger.middleware"
 import { notFoundMiddleware } from "./middleware/not-found.middleware"
-import { logger } from "@/config/logger"
-import { serverConfig } from "@/config/server"
+import { logger } from "./config/logger"
+import { serverConfig } from "./config/server"
 
 class App {
   public app: Application

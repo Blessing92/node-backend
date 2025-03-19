@@ -2,8 +2,8 @@ import {
   createTaskSchema,
   updateTaskSchema,
   paginationSchema,
-} from "@/dto/task.dto"
-import { TaskStatus } from "@/enums/task-status.enum"
+} from "../../dto/task.dto"
+import { TaskStatus } from "../../enums/task-status.enum"
 
 describe("Validation Schema Tests", () => {
   describe("createTaskSchema", () => {

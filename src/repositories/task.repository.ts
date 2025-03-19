@@ -1,13 +1,13 @@
 import { type Transaction, Op, type WhereOptions } from "sequelize"
-import Task from "@/models/task.model"
+import Task from "../models/task.model"
 import {
   createTaskSchema,
   updateTaskSchema,
   paginationSchema,
-} from "@/dto/task.dto"
-import { type ITask, type ITaskFilter } from "@/interfaces/task.interface"
-import { logger } from "@/config/logger"
-import { NotFoundException } from "@/exceptions/http-exception"
+} from "../dto/task.dto"
+import { type ITask, type ITaskFilter } from "../interfaces/task.interface"
+import { logger } from "../config/logger"
+import { NotFoundException } from "../exceptions/http-exception"
 
 export class TaskRepository {
   /**

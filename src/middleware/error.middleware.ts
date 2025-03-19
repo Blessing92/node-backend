@@ -1,7 +1,7 @@
 import { type NextFunction, type Request, type Response } from "express"
-import { HttpException } from "@/exceptions/http-exception"
-import { ValidationException } from "@/exceptions/validation.exception"
-import { logger } from "@/config/logger"
+import { HttpException } from "../exceptions/http-exception"
+import { ValidationException } from "../exceptions/validation.exception"
+import { logger } from "../config/logger"
 import { ValidationError } from "sequelize"
 
 export const errorMiddleware = (

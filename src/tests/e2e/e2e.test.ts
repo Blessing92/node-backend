@@ -1,11 +1,11 @@
 import dotenv from "dotenv"
 import path from "path"
 import request from "supertest"
-import { sequelize } from "@/config/database"
+import { sequelize } from "../../config/database"
 import { Op } from "sequelize"
-import App from "@/app"
-import Task from "@/models/task.model"
-import { TaskStatus } from "@/enums/task-status.enum"
+import App from "../../app"
+import Task from "../../models/task.model"
+import { TaskStatus } from "../../enums/task-status.enum"
 import { ITask } from "../../interfaces/task.interface"
 
 dotenv.config({ path: path.resolve(__dirname, "../../.env.test") })

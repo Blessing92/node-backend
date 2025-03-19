@@ -1,6 +1,6 @@
 import { type Request, type Response, type NextFunction } from "express"
 import { type Schema } from "joi"
-import { BadRequestException } from "@/exceptions/http-exception"
+import { BadRequestException } from "../exceptions/http-exception"
 
 /**
  * Middleware to validate request data against the schema

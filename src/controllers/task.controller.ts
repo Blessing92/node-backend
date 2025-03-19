@@ -1,8 +1,8 @@
 import { type Request, type Response, type NextFunction } from "express"
-import { TaskService } from "@/services/task.service"
-import { type ITask, type ITaskFilter } from "@/interfaces/task.interface"
-import { BadRequestException } from "@/exceptions/http-exception"
-import { type TaskStatus } from "@/enums/task-status.enum"
+import { TaskService } from "../services/task.service"
+import { type ITask, type ITaskFilter } from "../interfaces/task.interface"
+import { BadRequestException } from "../exceptions/http-exception"
+import { type TaskStatus } from "../enums/task-status.enum"
 
 export class TaskController {
   private readonly taskService: TaskService

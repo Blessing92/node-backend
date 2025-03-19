@@ -1,9 +1,9 @@
 import { type Transaction } from "sequelize"
-import { TaskRepository } from "@/repositories/task.repository"
-import { type ITask, type ITaskFilter } from "@/interfaces/task.interface"
-import { logger } from "@/config/logger"
-import { sequelize } from "@/config/database"
-import { BadRequestException } from "@/exceptions/http-exception"
+import { TaskRepository } from "../repositories/task.repository"
+import { type ITask, type ITaskFilter } from "../interfaces/task.interface"
+import { logger } from "../config/logger"
+import { sequelize } from "../config/database"
+import { BadRequestException } from "../exceptions/http-exception"
 
 export class TaskService {
   private readonly taskRepository: TaskRepository

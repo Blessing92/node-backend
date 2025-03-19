@@ -1,11 +1,11 @@
 import dotenv from "dotenv"
 import path from "path"
-import { sequelize } from "@/config/database"
-import Task from "@/models/task.model"
+import { sequelize } from "../../config/database"
+import Task from "../../models/task.model"
 import { logger } from "../../config/logger"
-import { TaskStatus } from "@/enums/task-status.enum"
-import { TaskService } from "@/services/task.service"
-import { NotFoundException } from "@/exceptions/http-exception"
+import { TaskStatus } from "../../enums/task-status.enum"
+import { TaskService } from "../../services/task.service"
+import { NotFoundException } from "../../exceptions/http-exception"
 
 dotenv.config({ path: path.resolve(__dirname, "../../.env.test") })
 

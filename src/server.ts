@@ -1,7 +1,6 @@
-import "module-alias/register"
 import "dotenv/config"
 import App from "./app"
-import { logger } from "@/config/logger"
+import { logger } from "./config/logger"
 
 process.on("uncaughtException", (error: Error) => {
   logger.error("Uncaught exception", { error })

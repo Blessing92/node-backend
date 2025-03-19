@@ -14,9 +14,6 @@
     "emitDecoratorMetadata": true,
     "baseUrl": "./",
     "types": ["jest", "node"],
-    "paths": {
-      "@/*": ["src/*"]
-    },
     "typeRoots": ["./types", "./node_modules/@types"]
   },
   "include": ["src/**/*.ts", "src/**/*.json", ".env",

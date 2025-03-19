@@ -11,7 +11,7 @@ import {
   AutoIncrement,
   Index,
 } from "sequelize-typescript"
-import { TaskStatus } from "@/enums/task-status.enum"
+import { TaskStatus } from "../enums/task-status.enum"
 
 @Table({
   tableName: "tasks",

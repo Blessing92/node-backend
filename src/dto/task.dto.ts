@@ -1,5 +1,5 @@
 import Joi from "joi"
-import { TaskStatus } from "@/enums/task-status.enum"
+import { TaskStatus } from "../enums/task-status.enum"
 
 export const createTaskSchema = Joi.object({
   title: Joi.string().required().max(100).trim().messages({

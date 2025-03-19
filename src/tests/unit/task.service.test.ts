@@ -1,14 +1,14 @@
 import { Transaction } from "sequelize"
-import { TaskService } from "@/services/task.service"
-import { TaskRepository } from "@/repositories/task.repository"
-import { type ITask, type ITaskFilter } from "@/interfaces/task.interface"
-import { TaskStatus } from "@/enums/task-status.enum"
-import { sequelize } from "@/config/database"
+import { TaskService } from "../../services/task.service"
+import { TaskRepository } from "../../repositories/task.repository"
+import { type ITask, type ITaskFilter } from "../../interfaces/task.interface"
+import { TaskStatus } from "../../enums/task-status.enum"
+import { sequelize } from "../../config/database"
 import {
   BadRequestException,
   NotFoundException,
-} from "@/exceptions/http-exception"
-import { logger } from "@/config/logger"
+} from "../../exceptions/http-exception"
+import { logger } from "../../config/logger"
 
 // Mock dependencies
 jest.mock("@/repositories/task.repository")
