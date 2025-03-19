@@ -22,5 +22,5 @@ jobs:
     name: Build and Deploy
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: test
-    uses: ./.github/workflows/lint-and-typecheck.yml
+    uses: ./.github/workflows/build-deploy.yml
     secrets: inherit
