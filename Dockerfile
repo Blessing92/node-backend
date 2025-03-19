@@ -24,14 +24,17 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM public.ecr.aws/lambda/nodejs:22 as production
+FROM node:22-alpine3.19 AS production
 
-COPY package*.json ./
+WORKDIR /app
 
-RUN npm ci --production
+ENV NODE_ENV=production
 
-COPY . .
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/package*.json ./
 
-RUN npm run build
+RUN npm ci --only=production
 
-CMD [ "dist/src/handler.handler" ]
+EXPOSE 3000
+
+CMD ["node", "dist/server.js"]

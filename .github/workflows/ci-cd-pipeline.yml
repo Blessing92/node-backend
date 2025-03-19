@@ -1,0 +1,26 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-typecheck:
+    name: Lint and Typecheck
+    uses: ./.github/workflows/lint-and-typecheck.yml
+    secrets: inherit
+
+  test:
+    name: Test
+    needs: lint-and-typecheck
+    uses: ./.github/workflows/run-unit-e2e-and-integration.yml
+    secrets: inherit
+
+  build-and-deploy:
+    name: Build and Deploy
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: test
+    uses: ./.github/workflows/lint-and-typecheck.yml
+    secrets: inherit
