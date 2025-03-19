@@ -15,15 +15,12 @@ describe("Task Integration Tests", () => {
   beforeAll(async () => {
     try {
       await sequelize.authenticate()
-      console.log("Database connection established successfully")
 
       // Force sync all models
       await sequelize.sync({ force: true })
-      console.log("Database tables created successfully")
 
       taskService = new TaskService()
     } catch (error) {
-      console.error("Database setup failed:", error)
       throw error
     }
   })
