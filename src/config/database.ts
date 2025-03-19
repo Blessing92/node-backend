@@ -73,7 +73,12 @@ else {
     )
   }
 
-  const { DB_ARN, SECRET_ARN, DB_NAME, AWS_REGION = "us-east-1" } = process.env
+  const {
+    DB_ARN,
+    SECRET_ARN,
+    DB_NAME,
+    AWS_REGION = "eu-central-1",
+  } = process.env
 
   const dataAPI = new RDSDataService({
     region: AWS_REGION,
