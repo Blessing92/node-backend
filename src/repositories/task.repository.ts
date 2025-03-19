@@ -8,7 +8,6 @@ import {
 import { type ITask, type ITaskFilter } from "@/interfaces/task.interface"
 import { logger } from "@/config/logger"
 import { NotFoundException } from "@/exceptions/http-exception"
-// import { cache } from '../utils/cache.util';
 
 export class TaskRepository {
   /**
@@ -23,7 +22,6 @@ export class TaskRepository {
   ): Promise<ITask> {
     logger.debug("Creating new task", { title: taskData.title })
 
-    // Validate input data against schema
     const { error, value } = createTaskSchema.validate(taskData, {
       abortEarly: false,
       allowUnknown: false,
@@ -41,9 +39,6 @@ export class TaskRepository {
 
     const task = await Task.create(value, { transaction })
 
-    // Invalidate cache for list endpoints
-    // await this.invalidateListCache();
-
     return await task.toJSON()
   }
 
@@ -55,7 +50,6 @@ export class TaskRepository {
   public async getTasks(
     filters?: ITaskFilter,
   ): Promise<{ tasks: ITask[]; total: number }> {
-    // Validate and apply defaults to query parameters
     const { error, value } = paginationSchema.validate(filters ?? {})
     if (error) {
       throw new Error(`Invalid query parameters: ${error.message}`)
@@ -100,16 +94,6 @@ export class TaskRepository {
       ]
     }
 
-    // Generate cache key based on query parameters
-    // const cacheKey = `tasks:filtered:${JSON.stringify({ page, limit, sortBy, sortOrder, status, search, due_date_start: filters?.due_date_start, due_date_end: filters?.due_date_end })}`
-
-    // Try to get from cache first
-    // const cachedResult = await cache.get(cacheKey);
-    // if (cachedResult) {
-    //   logger.debug('Returning tasks from cache', { cacheKey });
-    //   return JSON.parse(cachedResult);
-    // }
-
     logger.debug("Fetching tasks from database", {
       page,
       limit,
@@ -141,9 +125,6 @@ export class TaskRepository {
       total: count,
     }
 
-    // Cache the result for 5 minutes
-    // await cache.set(cacheKey, JSON.stringify(result), 'EX', 300);
-
     return result
   }
 
@@ -156,27 +137,13 @@ export class TaskRepository {
   public async getTaskById(taskId: number): Promise<ITask> {
     logger.debug("Fetching task by ID", { taskId })
 
-    // Try to get from cache first
-    // const cacheKey = `task:${taskId}`
-    // const cachedTask = await cache.get(cacheKey);
-    //
-    // if (cachedTask) {
-    //   logger.debug('Returning task from cache', { taskId });
-    //   return JSON.parse(cachedTask);
-    // }
-
     const task = await Task.findByPk(taskId)
 
     if (!task) {
       throw new NotFoundException(`Task with ID ${taskId} not found`)
     }
 
-    const taskData = task.toJSON()
-
-    // Cache the result for 5 minutes
-    // await cache.set(cacheKey, JSON.stringify(taskData), 'EX', 300);
-
-    return taskData
+    return task.toJSON()
   }
 
   /**
@@ -205,12 +172,7 @@ export class TaskRepository {
       throw new NotFoundException(`Task with ID ${taskId} not found`)
     }
 
-    // Update task
     await task.update(value, { transaction })
-
-    // Invalidate caches
-    // await cache.del(`task:${taskId}`);
-    // await this.invalidateListCache();
 
     return await task.toJSON()
   }
@@ -236,20 +198,8 @@ export class TaskRepository {
 
     await task.destroy({ transaction })
 
-    // Invalidate caches
-    // await cache.del(`task:${taskId}`);
-    // await this.invalidateListCache();
-
     return true
   }
-
-  /**
-   * Helper method to invalidate all list-related caches
-   */
-  // private async invalidateListCache(): Promise<void> {
-  //   await cache.del('tasks:all*');
-  //   await cache.del('tasks:filtered:*');
-  // }
 }
 
 export default new TaskRepository()

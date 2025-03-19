@@ -59,7 +59,7 @@ if (NODE_ENV === "development" && process.env.DB_HOST) {
 }
 // Production/staging with RDS Data API
 else {
-  const requiredEnvVars = ["DB_ARN", "SECRET_ARN_PROD", "DB_NAME"]
+  const requiredEnvVars = ["DB_ARN", "SECRET_ARN", "DB_NAME"]
   const missingEnvVars = requiredEnvVars.filter(
     (envVar) => (process.env[envVar] ?? "").trim() === "",
   )
