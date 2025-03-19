@@ -14,7 +14,7 @@ terraform {
     bucket = "serverless-deploy-task-api"
     key    = "prod/terraform.tfstate"
     region = "eu-central-1"
-    dynamodb_table = "terraform-lock"
+    use_lockfile = true
   }
 }
 
