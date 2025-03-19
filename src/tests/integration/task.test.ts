@@ -2,6 +2,7 @@ import dotenv from "dotenv"
 import path from "path"
 import { sequelize } from "@/config/database"
 import Task from "@/models/task.model"
+import { logger } from "../../config/logger"
 import { TaskStatus } from "@/enums/task-status.enum"
 import { TaskService } from "@/services/task.service"
 import { NotFoundException } from "@/exceptions/http-exception"
@@ -15,12 +16,15 @@ describe("Task Integration Tests", () => {
   beforeAll(async () => {
     try {
       await sequelize.authenticate()
+      logger.info("Database connection established successfully")
 
       // Force sync all models
       await sequelize.sync({ force: true })
+      logger.info("Database tables created successfully")
 
       taskService = new TaskService()
     } catch (error) {
+      logger.error("Database setup failed:", error)
       throw error
     }
   })
