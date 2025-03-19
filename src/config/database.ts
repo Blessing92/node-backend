@@ -5,7 +5,6 @@ import path from "path"
 
 dotenv.config()
 
-// Validate required environment variables
 const requiredEnvVars = ["DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD"]
 const missingEnvVars = requiredEnvVars.filter(
   (envVar) => (process.env[envVar] ?? "").trim() === "",

@@ -43,13 +43,14 @@ export class TaskController {
     next: NextFunction,
   ): Promise<void> => {
     try {
+      const page = req.query.page ? parseInt(req.query.page as string, 10) : 1
+      const limit = req.query.limit
+        ? parseInt(req.query.limit as string, 10)
+        : 10
+
       const filters: ITaskFilter = {
-        page: req.query.page
-          ? parseInt(req.query.page as string, 10)
-          : undefined,
-        limit: req.query.limit
-          ? parseInt(req.query.limit as string, 10)
-          : undefined,
+        page: isNaN(page) ? 1 : page,
+        limit: isNaN(limit) ? 10 : limit,
         sortBy: req.query.sortBy as string,
         sortOrder: req.query.sortOrder as "ASC" | "DESC",
         status: req.query.status as TaskStatus,

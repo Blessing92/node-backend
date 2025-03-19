@@ -1,4 +1,4 @@
-import { type Request, type Response } from "express"
+import { type NextFunction, type Request, type Response } from "express"
 import { HttpException } from "@/exceptions/http-exception"
 import { ValidationException } from "@/exceptions/validation.exception"
 import { logger } from "@/config/logger"
@@ -8,6 +8,7 @@ export const errorMiddleware = (
   error: Error,
   req: Request,
   res: Response,
+  next: NextFunction,
 ): void => {
   if (error instanceof ValidationException) {
     logger.warn({
@@ -19,6 +20,7 @@ export const errorMiddleware = (
 
     res.status(error.status).json({
       status: error.status,
+      success: false,
       message: error.message,
       errors: error.errors,
       timestamp: new Date().toISOString(),
@@ -36,6 +38,7 @@ export const errorMiddleware = (
 
     res.status(error.status).json({
       status: error.status,
+      success: false,
       message: error.message,
       timestamp: new Date().toISOString(),
       path: req.path,
@@ -54,6 +57,7 @@ export const errorMiddleware = (
 
     res.status(400).json({
       status: 400,
+      success: false,
       message: "Validation error",
       errors: error.errors.map((e) => ({
         field: e.path ?? "unknown_field",
@@ -76,6 +80,7 @@ export const errorMiddleware = (
 
   res.status(500).json({
     status: 500,
+    success: false,
     message: "Internal server error",
     timestamp: new Date().toISOString(),
     path: req.path,

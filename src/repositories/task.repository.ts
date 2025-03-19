@@ -125,7 +125,6 @@ export class TaskRepository {
       limit,
       offset,
       order: [[sortBy, sortOrder]],
-      // Use attributes to select only needed fields
       attributes: [
         "task_id",
         "title",
