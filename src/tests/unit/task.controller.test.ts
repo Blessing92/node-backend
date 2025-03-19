@@ -17,8 +17,8 @@ describe("TaskController", () => {
   beforeEach(() => {
     mockTaskService = new TaskService() as jest.Mocked<TaskService>
     taskController = new TaskController()
-    // @ts-ignore - Override the private service property
-    taskController.taskService = mockTaskService
+
+    taskController = new TaskController(mockTaskService)
 
     mockRequest = {}
     mockResponse = {

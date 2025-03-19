@@ -58,14 +58,14 @@ describe("Task Integration Tests", () => {
 
     it("should retrieve tasks with filters directly from database", async () => {
       // Create additional tasks with different statuses
-      const inProgressTask = await Task.create({
+      await Task.create({
         title: "In Progress Task",
         description: "This task is in progress",
         due_date: new Date(Date.now() + 172800000), // 2 days ahead
         status: TaskStatus.IN_PROGRESS,
       })
 
-      const completedTask = await Task.create({
+      await Task.create({
         title: "Completed Task",
         description: "This task is done",
         due_date: new Date(Date.now() + 172800000), // 2 days ahead

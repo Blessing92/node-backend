@@ -134,10 +134,8 @@ describe("TaskRepository", () => {
         count: 1,
       })
 
-      // Act
       await taskRepository.getTasks(filters)
 
-      // Assert
       expect(Task.findAndCountAll).toHaveBeenCalledWith(
         expect.objectContaining({
           limit: filters.limit,
@@ -158,13 +156,11 @@ describe("TaskRepository", () => {
     })
 
     it("should throw an error for invalid pagination parameters", async () => {
-      // Arrange
       const invalidFilters = {
         page: -1, // Invalid page number
         limit: 10000, // Too large limit
       }
 
-      // Act & Assert
       await expect(taskRepository.getTasks(invalidFilters)).rejects.toThrow(
         /Invalid query parameters/,
       )
@@ -174,22 +170,17 @@ describe("TaskRepository", () => {
 
   describe("getTaskById", () => {
     it("should return a task when found", async () => {
-      // Arrange
       ;(Task.findByPk as jest.Mock).mockResolvedValueOnce(mockTaskResponse)
 
-      // Act
       const result = await taskRepository.getTaskById(1)
 
-      // Assert
       expect(Task.findByPk).toHaveBeenCalledWith(1)
       expect(result).toEqual(mockTaskResponse.toJSON())
     })
 
     it("should throw NotFoundException when task not found", async () => {
-      // Arrange
       ;(Task.findByPk as jest.Mock).mockResolvedValueOnce(null)
 
-      // Act & Assert
       await expect(taskRepository.getTaskById(999)).rejects.toThrow(
         NotFoundException,
       )
@@ -199,7 +190,6 @@ describe("TaskRepository", () => {
 
   describe("updateTask", () => {
     it("should update and return the task when found", async () => {
-      // Arrange
       const mockUpdate = jest.fn().mockResolvedValueOnce([1])
       const mockTask = {
         ...mockTaskResponse,
@@ -213,14 +203,12 @@ describe("TaskRepository", () => {
         status: "completed" as const,
       } as Partial<ITask>
 
-      // Act
       const result = await taskRepository.updateTask(
         1,
         updateData,
         mockTransaction,
       )
 
-      // Assert
       expect(Task.findByPk).toHaveBeenCalledWith(1, {
         transaction: mockTransaction,
       })
@@ -231,22 +219,18 @@ describe("TaskRepository", () => {
     })
 
     it("should throw NotFoundException when task not found", async () => {
-      // Arrange
       ;(Task.findByPk as jest.Mock).mockResolvedValueOnce(null)
 
-      // Act & Assert
       await expect(
         taskRepository.updateTask(999, { title: "New Title" }),
       ).rejects.toThrow(NotFoundException)
     })
 
     it("should throw error for invalid update data", async () => {
-      // Arrange
       const invalidUpdateData = {
-        status: "invalid_status" as any, // Invalid status
+        status: "invalid_status" as TaskStatus, // Invalid status
       }
 
-      // Act & Assert
       await expect(
         taskRepository.updateTask(1, invalidUpdateData),
       ).rejects.toThrow(/Invalid update data/)

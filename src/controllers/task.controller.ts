@@ -7,8 +7,8 @@ import { type TaskStatus } from "@/enums/task-status.enum"
 export class TaskController {
   private readonly taskService: TaskService
 
-  constructor() {
-    this.taskService = new TaskService()
+  constructor(taskService?: TaskService) {
+    this.taskService = taskService || new TaskService()
   }
 
   /**

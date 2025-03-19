@@ -226,7 +226,7 @@ describe("TaskService", () => {
       mockTaskRepository.updateTask.mockRejectedValueOnce(validationError)
 
       await expect(
-        taskService.updateTask(1, { status: "invalid" as any }),
+        taskService.updateTask(1, { status: "invalid" as TaskStatus }),
       ).rejects.toThrow("Invalid status value")
       expect(mockTransaction.rollback).toHaveBeenCalled()
     })

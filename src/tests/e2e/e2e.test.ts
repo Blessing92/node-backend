@@ -6,6 +6,7 @@ import { Op } from "sequelize"
 import App from "@/app"
 import Task from "@/models/task.model"
 import { TaskStatus } from "@/enums/task-status.enum"
+import { ITask } from "../../interfaces/task.interface"
 
 dotenv.config({ path: path.resolve(__dirname, "../../.env.test") })
 
@@ -127,7 +128,7 @@ describe("Task API E2E Tests", () => {
       expect(response.body.success).toBe(true)
       expect(
         response.body.data.every(
-          (task: any) => task.status === TaskStatus.IN_PROGRESS,
+          (task: ITask) => task.status === TaskStatus.IN_PROGRESS,
         ),
       ).toBe(true)
     })
@@ -139,7 +140,7 @@ describe("Task API E2E Tests", () => {
 
       expect(response.body.success).toBe(true)
       expect(
-        response.body.data.some((task: any) => task.title === "Task 2"),
+        response.body.data.some((task: ITask) => task.title === "Task 2"),
       ).toBe(true)
     })
   })
