@@ -14,18 +14,18 @@ output "public_subnet_ids" {
 }
 
 output "db_endpoint" {
-  description = "Endpoint of the Aurora cluster"
-  value       = module.aurora.db_endpoint
+  description = "Endpoint of the MySQL instance"
+  value       = module.mysql.db_instance_endpoint
 }
 
 output "db_arn" {
-  description = "ARN of the Aurora cluster"
-  value       = module.aurora.db_arn
+  description = "ARN of the MySQL instance"
+  value       = module.mysql.db_instance_arn
 }
 
-output "secret_arn" {
+output "db_secret_arn" {
   description = "ARN of the database secrets"
-  value       = module.aurora.secret_arn
+  value       = module.mysql.db_secret_arn
 }
 
 output "ecs_service_name" {
