@@ -116,10 +116,10 @@ The AWS infrastructure is provisioned using Terraform:
 
 - API Gateway for RESTful endpoints
 - Lambda functions for serverless execution
-- Aurora MySQL cluster for the database
+- RDS MySQL for the database
 - CloudWatch for logging and monitoring
 
-Database configurations are provided via `terraform/module/aurora`.
+Database configurations are provided via `terraform/module/mysql`.
 
 ### Manual Deployment
 

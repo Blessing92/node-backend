@@ -3,6 +3,7 @@ import helmet from "helmet"
 import cors from "cors"
 import compression from "compression"
 import { initializeDatabase } from "./config/database"
+import runMigrations from "./migrations/run-migrations"
 import taskRoutes from "./routes/task.routes"
 import { errorMiddleware } from "./middleware/error.middleware"
 import { requestLogger } from "./middleware/logger.middleware"
@@ -51,8 +52,12 @@ class App {
 
   public async listen(): Promise<void> {
     try {
-      // Sync database models
       await initializeDatabase()
+
+      if (process.env.NODE_ENV === "production") {
+        logger.info("Running database migrations...")
+        await runMigrations()
+      }
 
       const PORT = serverConfig.port
       this.app.listen(PORT, () => {

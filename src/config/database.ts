@@ -97,7 +97,7 @@ export const initializeDatabase = async (): Promise<void> => {
         logger.info("All models were synchronized successfully.")
       }
 
-      return // Success - exit the function
+      return
     } catch (error) {
       retries++
 
