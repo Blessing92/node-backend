@@ -192,6 +192,13 @@ resource "aws_iam_policy" "secrets_manager" {
   })
 }
 
+# Add this new resource to attach the policy to the task execution role
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_secrets_manager" {
+  role       = aws_iam_role.ecs_task_execution.name
+  policy_arn = aws_iam_policy.secrets_manager.arn
+}
+
+# Keep the existing attachment for the task role
 resource "aws_iam_role_policy_attachment" "secrets_manager" {
   role       = aws_iam_role.ecs_task.name
   policy_arn = aws_iam_policy.secrets_manager.arn
