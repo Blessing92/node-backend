@@ -72,12 +72,14 @@ export class MigrationManager {
 
     const completedMigrations = await this.getCompletedMigrations()
 
+    // Get all migration files
     const migrationDir = path.join(__dirname, "scripts")
-    let migrationFiles = fs
+    const migrationFiles = fs
       .readdirSync(migrationDir)
       .filter((file) => file.endsWith(".js") || file.endsWith(".ts"))
-      .sort()
+      .sort() // Sort alphabetically to ensure order
 
+    // Filter out completed migrations
     const pendingMigrations = migrationFiles.filter(
       (file) => !completedMigrations.includes(file),
     )
@@ -95,7 +97,9 @@ export class MigrationManager {
       try {
         logger.info(`Running migration: ${migrationFile}`)
 
-        const migration = require(path.join(migrationDir, migrationFile))
+        // Import and run the migration
+        const migrationPath = path.join(migrationDir, migrationFile)
+        const migration = await import(migrationPath)
         await migration.up(this.queryInterface, this.sequelize)
 
         await this.recordMigration(migrationFile)
