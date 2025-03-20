@@ -89,10 +89,10 @@ resource "aws_lb" "main" {
 }
 
 resource "aws_lb_target_group" "main" {
-  name     = "${var.project_name}-${var.environment}-tg"
-  port     = var.container_port
-  protocol = "HTTP"
-  vpc_id   = var.vpc_id
+  name        = "${var.project_name}-${var.environment}-tg"
+  port        = var.container_port
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
   target_type = "ip"
 
   health_check {
@@ -173,38 +173,39 @@ resource "aws_iam_role" "ecs_task" {
   }
 }
 
-resource "aws_iam_policy" "rds_data_api" {
-  name        = "${var.project_name}-${var.environment}-rds-data-api"
-  description = "Policy for accessing RDS Data API"
+# Updated IAM policy for MySQL instead of Aurora Data API
+resource "aws_iam_policy" "secrets_manager" {
+  name        = "${var.project_name}-${var.environment}-secrets-access"
+  description = "Policy for accessing MySQL database credentials in Secrets Manager"
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
         Action = [
-          "rds-data:ExecuteStatement",
-          "rds-data:BatchExecuteStatement",
-          "rds-data:BeginTransaction",
-          "rds-data:CommitTransaction",
-          "rds-data:RollbackTransaction"
-        ]
-        Effect   = "Allow"
-        Resource = "*"
-      },
-      {
-        Action = [
           "secretsmanager:GetSecretValue"
         ]
         Effect   = "Allow"
-        Resource = var.secret_arn
+        Resource = var.db_secret_arn
       }
     ]
   })
 }
 
-resource "aws_iam_role_policy_attachment" "rds_data_api" {
+resource "aws_iam_role_policy_attachment" "secrets_manager" {
   role       = aws_iam_role.ecs_task.name
-  policy_arn = aws_iam_policy.rds_data_api.arn
+  policy_arn = aws_iam_policy.secrets_manager.arn
+}
+
+resource "aws_cloudwatch_log_group" "main" {
+  name              = "/ecs/${var.project_name}-${var.environment}"
+  retention_in_days = 30
+
+  tags = {
+    Name        = "${var.project_name}-${var.environment}-logs"
+    Environment = var.environment
+    Project     = var.project_name
+  }
 }
 
 resource "aws_ecs_task_definition" "main" {
@@ -230,6 +231,7 @@ resource "aws_ecs_task_definition" "main" {
         }
       ]
 
+      # Updated environment variables for MySQL connection
       environment = [
         {
           name  = "NODE_ENV"
@@ -240,20 +242,32 @@ resource "aws_ecs_task_definition" "main" {
           value = tostring(var.container_port)
         },
         {
-          name  = "DB_ARN"
-          value = var.db_arn
-        },
-        {
-          name  = "SECRET_ARN"
-          value = var.secret_arn
-        },
-        {
           name  = "DB_NAME"
           value = var.db_name
         },
         {
           name  = "AWS_REGION"
           value = var.aws_region
+        }
+      ]
+
+      # Added secrets configuration to fetch MySQL credentials from Secrets Manager
+      secrets = [
+        {
+          name      = "DB_HOST"
+          valueFrom = "${var.db_secret_arn}:host::"
+        },
+        {
+          name      = "DB_PORT"
+          valueFrom = "${var.db_secret_arn}:port::"
+        },
+        {
+          name      = "DB_USER"
+          valueFrom = "${var.db_secret_arn}:username::"
+        },
+        {
+          name      = "DB_PASSWORD"
+          valueFrom = "${var.db_secret_arn}:password::"
         }
       ]
 
@@ -275,17 +289,6 @@ resource "aws_ecs_task_definition" "main" {
   }
 }
 
-resource "aws_cloudwatch_log_group" "main" {
-  name              = "/ecs/${var.project_name}-${var.environment}"
-  retention_in_days = 30
-
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-logs"
-    Environment = var.environment
-    Project     = var.project_name
-  }
-}
-
 resource "aws_ecs_service" "main" {
   name            = "${var.project_name}-${var.environment}-service"
   cluster         = aws_ecs_cluster.main.id
@@ -294,8 +297,8 @@ resource "aws_ecs_service" "main" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = var.subnet_ids
-    security_groups = [aws_security_group.ecs_tasks.id]
+    subnets          = var.subnet_ids
+    security_groups  = [aws_security_group.ecs_tasks.id]
     assign_public_ip = false
   }
 

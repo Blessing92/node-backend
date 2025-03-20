@@ -2,121 +2,120 @@ import { Sequelize } from "sequelize-typescript"
 import { logger } from "./logger"
 import dotenv from "dotenv"
 import path from "path"
-import { RDSDataService } from "aws-sdk"
 
 dotenv.config()
 
-const { NODE_ENV = "development" } = process.env
+const { NODE_ENV = "production" } = process.env
 
-let sequelize: Sequelize
+const requiredEnvVars = ["DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD"]
+const missingEnvVars = requiredEnvVars.filter(
+  (envVar) => (process.env[envVar] ?? "").trim() === "",
+)
 
-// Local development with regular MySQL connection
-if (NODE_ENV === "development" && process.env.DB_HOST) {
-  const requiredEnvVars = ["DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD"]
-  const missingEnvVars = requiredEnvVars.filter(
-    (envVar) => (process.env[envVar] ?? "").trim() === "",
-  )
-
-  if (missingEnvVars.length > 0) {
+if (missingEnvVars.length > 0) {
+  if (NODE_ENV !== "production") {
+    // In development, fail immediately if vars are missing
     logger.error(
       `Missing required environment variables: ${missingEnvVars.join(", ")}`,
     )
     throw new Error(
       `Missing required environment variables: ${missingEnvVars.join(", ")}`,
     )
+  } else {
+    // In production, log a warning but continue (ECS will inject them)
+    logger.warn(
+      `Some environment variables appear to be missing: ${missingEnvVars.join(", ")}. ` +
+        `Continuing in production mode assuming they will be injected by the container runtime.`,
+    )
   }
+}
 
-  const {
-    DB_HOST,
-    DB_PORT = "3306",
-    DB_NAME,
-    DB_USER,
-    DB_PASSWORD,
-  } = process.env
+const { DB_HOST, DB_PORT = "3306", DB_NAME, DB_USER, DB_PASSWORD } = process.env
 
+const commonOptions = {
+  dialect: "mysql" as const,
+  host: DB_HOST,
+  port: parseInt(DB_PORT, 10),
+  database: DB_NAME,
+  username: DB_USER,
+  password: DB_PASSWORD,
+  logging: (msg: string) => {
+    logger.debug(msg)
+  },
+  models: [path.join(__dirname, "..", "models")],
+  define: {
+    timestamps: true,
+    underscored: true,
+  },
+}
+
+// Environment-specific configurations
+let sequelize: Sequelize
+if (NODE_ENV === "development") {
+  logger.info("Connecting to development database")
   sequelize = new Sequelize({
-    dialect: "mysql",
-    host: DB_HOST,
-    port: parseInt(DB_PORT, 10),
-    database: DB_NAME,
-    username: DB_USER,
-    password: DB_PASSWORD,
-    logging: (msg) => {
-      logger.debug(msg)
-    },
-    models: [path.join(__dirname, "..", "models")],
+    ...commonOptions,
     pool: {
       max: 5,
       min: 0,
       acquire: 30000,
       idle: 10000,
     },
-    define: {
-      timestamps: true,
-      underscored: true,
-    },
   })
-}
-// Production/staging with RDS Data API
-else {
-  const requiredEnvVars = ["DB_ARN", "SECRET_ARN", "DB_NAME"]
-  const missingEnvVars = requiredEnvVars.filter(
-    (envVar) => (process.env[envVar] ?? "").trim() === "",
-  )
-
-  if (missingEnvVars.length > 0) {
-    logger.error(
-      `Missing required environment variables: ${missingEnvVars.join(", ")}`,
-    )
-    throw new Error(
-      `Missing required environment variables: ${missingEnvVars.join(", ")}`,
-    )
-  }
-
-  const {
-    DB_ARN,
-    SECRET_ARN,
-    DB_NAME,
-    AWS_REGION = "eu-central-1",
-  } = process.env
-
-  const dataAPI = new RDSDataService({
-    region: AWS_REGION,
-  })
-
+} else {
+  logger.info("Connecting to AWS RDS MySQL database using standard connection")
   sequelize = new Sequelize({
-    dialect: "mysql",
-    database: DB_NAME,
-    logging: (msg) => {
-      logger.debug(msg)
+    ...commonOptions,
+    pool: {
+      max: 10,
+      min: 0,
+      acquire: 30000,
+      idle: 10000,
     },
-    models: [path.join(__dirname, "..", "models")],
     dialectOptions: {
-      dataAPI,
-      resourceArn: DB_ARN,
-      secretArn: SECRET_ARN,
-      database: DB_NAME,
-    },
-    define: {
-      timestamps: true,
-      underscored: true,
+      ssl: {
+        rejectUnauthorized: true,
+      },
+      connectTimeout: 30000,
     },
   })
 }
 
 export const initializeDatabase = async (): Promise<void> => {
-  try {
-    await sequelize.authenticate()
-    logger.info("Database connection has been established successfully.")
+  const maxRetries = NODE_ENV === "production" ? 5 : 1
+  let retries = 0
 
-    // Only sync in development
-    if (NODE_ENV === "development") {
-      await sequelize.sync({ alter: true })
-      logger.info("All models were synchronized successfully.")
+  while (retries < maxRetries) {
+    try {
+      logger.info(
+        `Connecting to the database (attempt ${retries + 1}/${maxRetries})...`,
+      )
+      await sequelize.authenticate()
+      logger.info("Database connection has been established successfully.")
+
+      // Only sync in development
+      if (NODE_ENV === "development") {
+        await sequelize.sync({ alter: true })
+        logger.info("All models were synchronized successfully.")
+      }
+
+      return // Success - exit the function
+    } catch (error) {
+      retries++
+
+      if (retries >= maxRetries) {
+        logger.error(
+          "Unable to connect to the database after maximum retries: ",
+          error,
+        )
+        throw error
+      }
+
+      // Wait before retrying (exponential backoff)
+      const delayMs = 1000 * Math.pow(2, retries - 1)
+      logger.warn(`Connection failed. Retrying in ${delayMs}ms...`)
+      await new Promise((resolve) => setTimeout(resolve, delayMs))
     }
-  } catch (error) {
-    logger.error("Unable to connect to the database: ", error)
-    throw error
   }
 }
 

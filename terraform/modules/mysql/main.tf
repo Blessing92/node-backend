@@ -11,7 +11,7 @@ resource "aws_db_subnet_group" "main" {
 
 resource "aws_security_group" "db" {
   name        = "${var.project_name}-${var.environment}-db-sg"
-  description = "Security group for Aurora database"
+  description = "Security group for MySQL database"
   vpc_id      = var.vpc_id
 
   ingress {
@@ -60,46 +60,33 @@ resource "aws_secretsmanager_secret_version" "db_credentials" {
     engine   = "mysql"
     port     = 3306
     dbname   = var.db_name
-    host     = aws_rds_cluster.main.endpoint
+    host     = aws_db_instance.main.address
   })
 }
 
-resource "aws_rds_cluster" "main" {
-  cluster_identifier      = "${var.project_name}-${var.environment}-aurora-cluster"
-  engine                  = "aurora-mysql"
-  engine_mode             = "provisioned"
-  engine_version          = "8.0.mysql_aurora.3.04.0"
-  database_name           = var.db_name
-  master_username         = "admin"
-  master_password         = random_password.db_password.result
+resource "aws_db_instance" "main" {
+  identifier           = "${var.project_name}-${var.environment}-mysql"
+  engine               = "mysql"
+  engine_version       = "8.0"
+  instance_class       = var.db_instance_class
+  allocated_storage    = var.allocated_storage
+  max_allocated_storage = var.max_allocated_storage
+  db_name              = var.db_name
+  username             = "admin"
+  password             = random_password.db_password.result
+  parameter_group_name = "default.mysql8.0"
+  skip_final_snapshot  = true
+  db_subnet_group_name = aws_db_subnet_group.main.name
+  vpc_security_group_ids = [aws_security_group.db.id]
   backup_retention_period = 7
-  preferred_backup_window = "03:00-04:00"
-  skip_final_snapshot     = true
-  db_subnet_group_name    = aws_db_subnet_group.main.name
-  vpc_security_group_ids  = [aws_security_group.db.id]
-
-  serverlessv2_scaling_configuration {
-    min_capacity = var.min_capacity
-    max_capacity = var.max_capacity
-  }
+  backup_window        = "03:00-04:00"
+  maintenance_window   = "Mon:00:00-Mon:03:00"
+  multi_az             = var.multi_az
+  storage_type         = "gp3"
+  storage_encrypted    = true
 
   tags = {
-    Name        = "${var.project_name}-${var.environment}-aurora-cluster"
-    Environment = var.environment
-    Project     = var.project_name
-  }
-}
-
-resource "aws_rds_cluster_instance" "main" {
-  count              = 1
-  identifier         = "${var.project_name}-${var.environment}-aurora-instance-${count.index}"
-  cluster_identifier = aws_rds_cluster.main.id
-  instance_class     = var.db_instance_class
-  engine             = aws_rds_cluster.main.engine
-  engine_version     = aws_rds_cluster.main.engine_version
-
-  tags = {
-    Name        = "${var.project_name}-${var.environment}-aurora-instance-${count.index}"
+    Name        = "${var.project_name}-${var.environment}-mysql"
     Environment = var.environment
     Project     = var.project_name
   }

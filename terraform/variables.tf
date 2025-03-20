@@ -26,14 +26,32 @@ variable "db_name" {
   type        = string
 }
 
-variable "db_arn" {
-  description = "The ARN of the Aurora serverless cluster (optional, will be created if not provided)"
+variable "db_secret_arn" {
+  description = "The ARN of the AWS Secrets Manager secret for MySQL (optional, will be created if not provided)"
   type        = string
   default     = ""
 }
 
-variable "secret_arn" {
-  description = "The ARN of the AWS Secrets Manager secret (optional, will be created if not provided)"
+variable "db_instance_class" {
+  description = "The instance class for the MySQL RDS instance"
   type        = string
-  default     = ""
+  default     = "db.t3.small"
+}
+
+variable "allocated_storage" {
+  description = "The allocated storage in gibibytes for MySQL RDS"
+  type        = number
+  default     = 20
+}
+
+variable "max_allocated_storage" {
+  description = "Maximum storage allocation for autoscaling MySQL RDS"
+  type        = number
+  default     = 100
+}
+
+variable "multi_az" {
+  description = "Whether to deploy the MySQL RDS instance in multiple availability zones"
+  type        = bool
+  default     = false
 }

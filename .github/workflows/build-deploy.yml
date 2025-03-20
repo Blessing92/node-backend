@@ -85,9 +85,11 @@ jobs:
           terraform plan \
           -var="docker_image=${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}" \
           -var="db_name=${{ secrets.DB_NAME }}" \
-          -var="db_arn=${{ secrets.DB_ARN }}" \
-          -var="secret_arn=${{ secrets.SECRET_ARN }}" \
           -var="aws_region=${{ secrets.AWS_REGION }}" \
+          -var="db_instance_class=${{ secrets.DB_INSTANCE_CLASS }}" \
+          -var="allocated_storage=${{ secrets.ALLOCATED_STORAGE }}" \
+          -var="max_allocated_storage=${{ secrets.MAX_ALLOCATED_STORAGE }}" \
+          -var="multi_az=${{ secrets.MULTI_AZ }}" \
           -out=tfplan
         working-directory: ./terraform
 

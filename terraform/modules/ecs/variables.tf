@@ -28,13 +28,9 @@ variable "docker_image" {
   type        = string
 }
 
-variable "db_arn" {
-  description = "ARN of the Aurora cluster"
-  type        = string
-}
-
-variable "secret_arn" {
-  description = "ARN of the database secrets"
+# Updated to match MySQL module output
+variable "db_secret_arn" {
+  description = "ARN of the MySQL database secrets"
   type        = string
 }
 
