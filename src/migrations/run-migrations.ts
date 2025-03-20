@@ -15,6 +15,7 @@ const runMigrations = async (): Promise<void> => {
     logger.info("Migrations completed successfully")
     process.exit(0)
   } catch (error) {
+    console.log("Migration failed:", error)
     logger.error("Migration process failed", { error })
     process.exit(1)
   }

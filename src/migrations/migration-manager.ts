@@ -1,4 +1,4 @@
-import { Sequelize, QueryInterface } from "sequelize"
+import { Sequelize, QueryInterface, DataTypes } from "sequelize"
 import { logger } from "../config/logger"
 import fs from "fs"
 import path from "path"
@@ -24,19 +24,20 @@ export class MigrationManager {
     const tables = await this.queryInterface.showAllTables()
     if (!tables.includes("migrations")) {
       logger.info("Creating migrations table...")
+
       await this.queryInterface.createTable("migrations", {
         id: {
-          type: "INTEGER",
+          type: DataTypes.INTEGER,
           primaryKey: true,
           autoIncrement: true,
         },
         name: {
-          type: "STRING",
+          type: DataTypes.STRING(255),
           allowNull: false,
           unique: true,
         },
         run_at: {
-          type: "DATE",
+          type: DataTypes.DATE,
           allowNull: false,
           defaultValue: this.sequelize.literal("CURRENT_TIMESTAMP"),
         },
