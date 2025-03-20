@@ -79,26 +79,37 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           IMAGE_TAG: ${{ github.sha }}
-          ALLOCATED_STORAGE: ${{ secrets.ALLOCATED_STORAGE }}
-          MAX_ALLOCATED_STORAGE: ${{ secrets.MAX_ALLOCATED_STORAGE }}
-          MULTI_AZ: ${{ secrets.MULTI_AZ }}
         run: |
-          # Convert string values to proper types for Terraform
-          allocated_storage=$(echo $ALLOCATED_STORAGE | tr -d '"')
-          max_allocated_storage=$(echo $MAX_ALLOCATED_STORAGE | tr -d '"')
-          multi_az=$(echo $MULTI_AZ | tr '[:upper:]' '[:lower:]')
-          
+          # Set the plan variables with explicit values, not relying on string processing
+          echo "Docker image: ${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+          echo "DB name: ${{ secrets.DB_NAME }}"
+
+          # For numeric values, ensure they're numbers or use defaults
+          ALLOCATED_STORAGE="${{ secrets.ALLOCATED_STORAGE }}"
+          if [[ ! "$ALLOCATED_STORAGE" =~ ^[0-9]+$ ]]; then
+            ALLOCATED_STORAGE=20
+          fi
+
+          MAX_ALLOCATED_STORAGE="${{ secrets.MAX_ALLOCATED_STORAGE }}"
+          if [[ ! "$MAX_ALLOCATED_STORAGE" =~ ^[0-9]+$ ]]; then
+            MAX_ALLOCATED_STORAGE=100
+          fi
+
+          # For boolean, ensure it's true or false
+          MULTI_AZ="${{ secrets.MULTI_AZ }}"
+          if [[ "$MULTI_AZ" == "true" ]]; then
+            MULTI_AZ="true"
+          else
+            MULTI_AZ="false"
+          fi
+
           terraform plan \
           -var="docker_image=${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}" \
           -var="db_name=${{ secrets.DB_NAME }}" \
           -var="aws_region=${{ secrets.AWS_REGION }}" \
           -var="db_instance_class=${{ secrets.DB_INSTANCE_CLASS }}" \
-          -var="allocated_storage=${allocated_storage}" \
-          -var="max_allocated_storage=${max_allocated_storage}" \
-          -var="multi_az=${multi_az}" \
+          -var="allocated_storage=${ALLOCATED_STORAGE}" \
+          -var="max_allocated_storage=${MAX_ALLOCATED_STORAGE}" \
+          -var="multi_az=${MULTI_AZ}" \
           -out=tfplan
-        working-directory: ./terraform
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve tfplan
         working-directory: ./terraform
