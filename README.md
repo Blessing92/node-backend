@@ -163,6 +163,7 @@ npm test
 
 This will execute unit, integration, and E2E tests and generate coverage reports which can be found in the `coverage` directory.
 
+
 ## AWS Deployment
 
 ### CI/CD Pipeline
@@ -197,6 +198,17 @@ The AWS infrastructure is provisioned using Terraform:
 - **VPC with public and private subnets** for network isolation
 
 Database configurations are provided via `terraform/module/mysql`.
+
+### Live API
+
+The API is currently deployed and accessible at:
+[http://task-api-prod-alb-871306809.eu-central-1.elb.amazonaws.com/](http://task-api-prod-alb-871306809.eu-central-1.elb.amazonaws.com/)
+
+You can test the API endpoints using this URL, for example:
+```
+GET http://task-api-prod-alb-871306809.eu-central-1.elb.amazonaws.com/health
+GET http://task-api-prod-alb-871306809.eu-central-1.elb.amazonaws.com/api/tasks
+```
 
 ### Manual Deployment
 
