@@ -57,3 +57,9 @@ variable "aws_region" {
   type        = string
   default     = "eu-central-1"
 }
+
+variable "ecs_security_group_id" {
+  description = "ID of the ECS security group"
+  type        = string
+  default     = ""
+}

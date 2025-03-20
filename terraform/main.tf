@@ -41,6 +41,7 @@ module "mysql" {
   multi_az              = var.multi_az
   docker_image          = var.docker_image
   aws_region            = var.aws_region
+  ecs_security_group_id = module.ecs.ecs_security_group_id
 }
 
 # ECS Configuration - Updated to work with MySQL

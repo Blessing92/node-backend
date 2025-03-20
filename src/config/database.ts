@@ -14,7 +14,6 @@ const missingEnvVars = requiredEnvVars.filter(
 
 if (missingEnvVars.length > 0) {
   if (NODE_ENV !== "production") {
-    // In development, fail immediately if vars are missing
     logger.error(
       `Missing required environment variables: ${missingEnvVars.join(", ")}`,
     )
@@ -22,7 +21,6 @@ if (missingEnvVars.length > 0) {
       `Missing required environment variables: ${missingEnvVars.join(", ")}`,
     )
   } else {
-    // In production, log a warning but continue (ECS will inject them)
     logger.warn(
       `Some environment variables appear to be missing: ${missingEnvVars.join(", ")}. ` +
         `Continuing in production mode assuming they will be injected by the container runtime.`,
@@ -74,7 +72,7 @@ if (NODE_ENV === "development") {
     },
     dialectOptions: {
       ssl: {
-        rejectUnauthorized: true,
+        rejectUnauthorized: false,
       },
       connectTimeout: 30000,
     },
